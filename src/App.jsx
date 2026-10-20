@@ -1,14 +1,26 @@
+import { useState } from 'react'
 import { useItems } from './hooks/useItems.js'
 import Header from './components/layout/Header.jsx'
 import Footer from './components/layout/Footer.jsx'
 import PageContainer from './components/layout/PageContainer.jsx'
+import ItemGrid from './components/items/ItemGrid.jsx'
+import ItemCard from './components/items/ItemCard.jsx'
+import ItemCardSkeleton from './components/items/ItemCardSkeleton.jsx'
+import EmptyState from './components/ui/EmptyState.jsx'
+import ErrorState from './components/ui/ErrorState.jsx'
 import './App.css'
 
 export default function App() {
   const { items, status, error, reload } = useItems()
+  const [, setSelectedItem] = useState(null)
+
+  const handleOpenItem = (item) => {
+    // Will open ItemDetailDialog in Phase 7
+    setSelectedItem(item)
+  }
 
   const handlePostClick = () => {
-    // Will be wired in Phase 6
+    // Will open PostItemDialog in Phase 6
   }
 
   const handleResetDemo = () => {
@@ -45,55 +57,31 @@ export default function App() {
               tabIndex="-1"
             >
               {status === 'loading' && (
-                <div className="results-placeholder">
-                  <p>Loading campus items...</p>
-                </div>
+                <ItemGrid>
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <ItemCardSkeleton key={`skeleton-${idx}`} />
+                  ))}
+                </ItemGrid>
               )}
 
               {status === 'error' && (
-                <div className="results-placeholder" style={{ borderColor: 'var(--color-lost-fg)' }}>
-                  <p style={{ color: 'var(--color-lost-fg)', marginBottom: 'var(--space-3)' }}>
-                    {error}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={reload}
-                    style={{
-                      background: 'var(--color-primary)',
-                      color: 'var(--color-surface)',
-                      padding: 'var(--space-2) var(--space-4)',
-                      borderRadius: 'var(--radius-md)',
-                      fontWeight: 600,
-                    }}
-                  >
-                    Retry
-                  </button>
-                </div>
+                <ErrorState message={error} onRetry={reload} />
               )}
 
-              {status === 'ready' && (
-                <div className="results-placeholder" style={{ textAlign: 'left' }}>
-                  <p style={{ fontWeight: 600, marginBottom: 'var(--space-2)' }}>
-                    Loaded {items.length} items successfully (Phase 2 temporary view):
-                  </p>
-                  <pre
-                    style={{
-                      maxHeight: '300px',
-                      overflowY: 'auto',
-                      fontSize: 'var(--text-sm)',
-                      background: 'var(--color-bg)',
-                      padding: 'var(--space-3)',
-                      borderRadius: 'var(--radius-sm)',
-                    }}
-                  >
-                    {items
-                      .map(
-                        (it, idx) =>
-                          `${idx + 1}. [${it.status.toUpperCase()}] ${it.title} (${it.category}) — ${it.date}`,
-                      )
-                      .join('\n')}
-                  </pre>
-                </div>
+              {status === 'ready' && items.length === 0 && (
+                <EmptyState variant="no-items" onAction={handlePostClick} />
+              )}
+
+              {status === 'ready' && items.length > 0 && (
+                <ItemGrid>
+                  {items.map((item) => (
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      onOpen={handleOpenItem}
+                    />
+                  ))}
+                </ItemGrid>
               )}
             </section>
           </div>
