@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%" fill="none">
+  <rect width="400" height="300" fill="#ecfeff"/>
+  <path d="M150 85l25 20c15-10 35-10 50 0l25-20 40 30-20 40-15-10v85H145v-85l-15 10-20-40 40-30z" fill="#06b6d4" opacity="0.85"/>
+  <text x="200" y="260" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#155e75">Clothing &amp; Accessories</text>
+</svg>

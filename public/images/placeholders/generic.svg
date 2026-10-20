@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%" fill="none">
+  <rect width="400" height="300" fill="#f3f4f6"/>
+  <rect x="140" y="90" width="120" height="100" rx="12" fill="#6b7280" opacity="0.8"/>
+  <path d="M140 120h120M200 90v100" stroke="#ffffff" stroke-width="4"/>
+  <text x="200" y="240" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#374151">Campus Item</text>
+</svg>
