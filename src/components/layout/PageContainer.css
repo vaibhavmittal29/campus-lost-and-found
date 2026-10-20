@@ -1,0 +1,12 @@
+.page-container {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-6);
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-7);
+  }
+}
