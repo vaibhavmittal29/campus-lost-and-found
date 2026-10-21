@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, SlidersHorizontal } from 'lucide-react'
 import { useItems } from './hooks/useItems.js'
 import { useFilters } from './hooks/useFilters.js'
 import { useDebouncedValue } from './hooks/useDebouncedValue.js'
+import { useMediaQuery } from './hooks/useMediaQuery.js'
 import { useToast } from './hooks/useToast.js'
 import { filterItems } from './utils/filterItems.js'
 import { sortItems } from './utils/sortItems.js'
@@ -20,6 +21,7 @@ import ItemCard from './components/items/ItemCard.jsx'
 import ItemCardSkeleton from './components/items/ItemCardSkeleton.jsx'
 import ItemDetailDialog from './components/items/ItemDetailDialog.jsx'
 import PostItemDialog from './components/post/PostItemDialog.jsx'
+import Dialog from './components/ui/Dialog.jsx'
 import EmptyState from './components/ui/EmptyState.jsx'
 import ErrorState from './components/ui/ErrorState.jsx'
 import ToastContainer from './components/ui/Toast.jsx'
@@ -29,8 +31,10 @@ export default function App() {
   const { items, status, error, reload, addItem, claim } = useItems()
   const { filters, setFilter, resetFilters, isFiltered } = useFilters()
   const { toast } = useToast()
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   const [isPostOpen, setIsPostOpen] = useState(false)
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [selectedItemId, setSelectedItemId] = useState(null)
   const [newlyPostedId, setNewlyPostedId] = useState(null)
 
@@ -114,6 +118,15 @@ export default function App() {
     return { status: statusCounts, categories: categoryCounts }
   }, [items])
 
+  // Active filter count for mobile badge
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (filters.status !== 'all') count += 1
+    if (filters.category !== 'all') count += 1
+    if (filters.location !== 'all') count += 1
+    return count
+  }, [filters])
+
   // Pure filtering followed by pure sorting
   const visibleItems = useMemo(() => {
     const filtered = filterItems(items, filters)
@@ -182,6 +195,16 @@ export default function App() {
     toast.info('Demo items restored to factory default.')
   }
 
+  const sortSelectComponent = (
+    <SortSelect
+      value={filters.sort}
+      onChange={(sortVal) => setFilter('sort', sortVal)}
+      hasQuery={Boolean(filters.q)}
+      referenceLocation={filters.ref}
+      onReferenceChange={(refVal) => setFilter('ref', refVal)}
+    />
+  )
+
   return (
     <div className="app-layout">
       <a href="#results-content" className="skip-link">
@@ -192,17 +215,41 @@ export default function App() {
 
       <main className="main-content">
         <PageContainer>
-          <section className="search-section" aria-label="Search items">
+          <section className="search-section" aria-label="Search and filter items">
             <SearchBar
               value={searchText}
               onChange={setSearchText}
               onClear={handleClearSearch}
             />
+
+            {/* Mobile / Tablet toolbar (<1024px) */}
+            <div className="mobile-toolbar">
+              <button
+                type="button"
+                className="mobile-filter-trigger"
+                onClick={() => setIsMobileDrawerOpen(true)}
+                aria-label="Open filter options"
+              >
+                <SlidersHorizontal size={16} aria-hidden="true" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="mobile-filter-trigger__badge">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              <div className="mobile-toolbar__sort">
+                {sortSelectComponent}
+              </div>
+            </div>
           </section>
 
           <div className="content-grid">
+            {/* Desktop Sticky Sidebar (>=1024px) */}
             <aside className="filters-sidebar" aria-label="Filters">
               <FilterPanel
+                className="filter-panel--sticky"
                 filters={filters}
                 onChange={setFilter}
                 onReset={resetFilters}
@@ -245,15 +292,7 @@ export default function App() {
                     total={items.length}
                     filters={filters}
                     onRemoveFilter={handleRemoveChip}
-                    sortSlot={
-                      <SortSelect
-                        value={filters.sort}
-                        onChange={(sortVal) => setFilter('sort', sortVal)}
-                        hasQuery={Boolean(filters.q)}
-                        referenceLocation={filters.ref}
-                        onReferenceChange={(refVal) => setFilter('ref', refVal)}
-                      />
-                    }
+                    sortSlot={isDesktop ? sortSelectComponent : null}
                   />
 
                   {visibleItems.length === 0 ? (
@@ -298,7 +337,7 @@ export default function App() {
         </PageContainer>
       </main>
 
-      {/* Floating Action Button on mobile */}
+      {/* Floating Action Button on mobile (<640px) */}
       <button
         type="button"
         className="floating-post-btn"
@@ -307,6 +346,23 @@ export default function App() {
       >
         <Plus size={28} aria-hidden="true" />
       </button>
+
+      {/* Mobile Filters Drawer Modal (<1024px) */}
+      <Dialog
+        open={isMobileDrawerOpen}
+        onClose={() => setIsMobileDrawerOpen(false)}
+        title="Filter Campus Items"
+        maxWidth="500px"
+      >
+        <FilterPanel
+          filters={filters}
+          onChange={setFilter}
+          onReset={resetFilters}
+          counts={counts}
+          onApply={() => setIsMobileDrawerOpen(false)}
+          resultCount={visibleItems.length}
+        />
+      </Dialog>
 
       {/* Post item modal dialog */}
       <PostItemDialog

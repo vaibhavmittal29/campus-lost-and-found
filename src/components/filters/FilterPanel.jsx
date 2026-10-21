@@ -11,6 +11,8 @@ export default function FilterPanel({
   onReset,
   counts = {},
   className = '',
+  onApply = null,
+  resultCount = null,
 }) {
   const isFiltered =
     Boolean(filters.q) ||
@@ -150,6 +152,22 @@ export default function FilterPanel({
           </select>
         </div>
       </div>
+
+      {/* Optional drawer apply footer */}
+      {onApply && (
+        <div className="filter-panel__drawer-footer">
+          <Button
+            variant="primary"
+            size="md"
+            onClick={onApply}
+            className="filter-panel__apply-btn"
+          >
+            {resultCount !== null
+              ? `Show ${resultCount} Results`
+              : 'Apply Filters'}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
