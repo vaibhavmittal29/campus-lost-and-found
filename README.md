@@ -1,9 +1,29 @@
 # 🎒 Campus Lost & Found
 
-A responsive lost-and-found interface for VIT Vellore campus: post lost/found items, search, filter, sort, and claim them. Built as my Frontend task for the **Mozilla Firefox Club (VIT Vellore) recruitment**, Frontend subdomain.
+[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen.svg?style=for-the-badge&logo=firefox)](https://vaibhavmittal29.github.io/campus-lost-and-found/)
+[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-passing-success.svg?style=for-the-badge&logo=githubactions)](https://github.com/vaibhavmittal29/campus-lost-and-found/actions)
 
 **🔗 Live Demo:** [https://vaibhavmittal29.github.io/campus-lost-and-found/](https://vaibhavmittal29.github.io/campus-lost-and-found/)  
 **📦 Repository:** [https://github.com/vaibhavmittal29/campus-lost-and-found](https://github.com/vaibhavmittal29/campus-lost-and-found)
+
+A responsive lost-and-found interface for VIT Vellore campus: post lost/found items, search, filter, sort, and claim them. Built as my Frontend task for the **Mozilla Firefox Club (VIT Vellore) recruitment**, Frontend subdomain.
+
+---
+
+## ⚡ Quick Tour for Evaluators (2 Minutes)
+
+Follow these 6 steps to evaluate every core requirement and extra feature:
+
+1. **Browse the Cards:** View the responsive grid displaying items across 8 categories, 12 VIT Vellore locations, and 3 status tags (`Lost`, `Found`, `Claimed`). Notice shimmer skeleton placeholders on refresh.
+2. **Search "wallet":** Type in the search bar to test the 300ms debounce. Notice that multi-word queries match across titles, descriptions, and locations simultaneously.
+3. **Apply Filters:** Combine Category chips, Campus Location dropdown, and the Status segmented control (`All` / `Lost` / `Found` / `Claimed`). Notice active chips appear and the URL automatically synchronizes without page reloads.
+4. **Change the Sort (Try "Nearest"):** Select "Nearest location" from the sort dropdown. Pick your reference campus landmark (e.g. Technology Tower) to see real-time proximity calculation and distance tags (`≈ 120 m`) rendered on every card.
+5. **Post an Item with a Photo:** Click "+ Post an item" (or the floating "+" button on mobile). Upload any photo to test instant preview and client-side canvas compression (keeps images `≤ 120 KB`). Submit to see the card prepend to the top, smoothly scroll into view, and pulse with a highlight animation.
+6. **Claim an Item:** Click any card to open the detail dialog. Notice the poster contact is securely masked. Click "This is mine — claim it" (or "I found this item"), fill the verification form, and submit. The status transitions to `Claimed` and unlocks the direct poster contact with a one-click copy button.
+
+> **💡 Evaluator Notes:**  
+> - **Data Persistence:** All items, new posts, and claims persist safely in your browser (`localStorage`). Click **"Reset demo data"** in the footer at any time to restore the original 24 campus items.  
+> - **Simulated Error State:** Append `?fail=1` to the URL (e.g. `https://vaibhavmittal29.github.io/campus-lost-and-found/?fail=1`) to test network failure simulation and the interactive "Try again" retry mechanism.
 
 ---
 
@@ -76,15 +96,13 @@ npm install
 npm run dev
 # Opens at http://localhost:5173
 
-# 5. Run automated unit tests
+# 5. Run automated unit tests (37 tests)
 npm test
 
 # 6. Check linter and build production distribution
 npm run lint
 npm run build
 ```
-
-> **Testing Simulated Error State:** Append `?fail=1` to the URL (e.g. `http://localhost:5173/?fail=1`) to simulate network failures and verify the Error State and Retry button.
 
 ---
 
@@ -114,19 +132,6 @@ App
 ├─ ToastContainer                      (Toast stack with auto-dismiss and pause-on-hover)
 └─ Footer                              (Recruitment attribution, "Reset demo data" action)
 ```
-
-### Component Responsibilities
-
-| Component | Responsibility |
-| :--- | :--- |
-| `ItemCard` | Renders individual item details, handles keyboard selection, and triggers item modal |
-| `ItemGrid` | Responsive CSS Grid container (`repeat(auto-fill, minmax(240px, 1fr))`) |
-| `ItemImage` | Progressive image loader with 4:3 fixed aspect ratio and category placeholder fallback |
-| `Badge` | Accessible status (`Lost`, `Found`, `Claimed`) and category badge with icon + text |
-| `FilterPanel` | Manages filter criteria with segmented status radios, category chips, and location select |
-| `SortSelect` | Controls list ordering and dynamically reveals reference location for nearest sort |
-| `Dialog` | Accessible wrapper over HTML5 `<dialog>` with focus locking, backdrop click, and Esc key exit |
-| `ImageUploader`| Handles file drop/select, temporary preview creation, and size/type validation |
 
 ---
 
@@ -164,7 +169,7 @@ App
 - **Plain CSS with Tokens:** Utilizes CSS Custom Properties (`tokens.css`) for complete design consistency, maintainability, and rapid loading without external stylesheet frameworks.
 - **Pure Functions for Business Logic:** Kept filtering, sorting, distance calculation, relevance scoring, and form validation as pure JavaScript functions in `utils/`. This allows zero-dependency unit testing with Vitest.
 - **Client-Side Image Optimization:** Standard phone camera pictures are 3–10 MB. Before saving items to browser `localStorage`, images are compressed via an HTML5 canvas to 800px max bounds at 0.8 JPEG quality (~80 KB), avoiding quota errors.
-- **Decoupled API Layer:** All data reads and writes pass through `itemsApi.js`. Connecting a real REST backend (e.g. Node.js/Express) in the future requires swapping this single file without touching UI components.
+- **Decoupled API Layer:** All data reads and writes pass through `itemsApi.js`. Connecting a real REST backend in the future requires swapping this single file without touching UI components.
 
 ---
 
@@ -185,8 +190,11 @@ App
 
 ```text
 campus-lost-found/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml            # Automated GitHub Pages CI/CD workflow
 ├── docs/
-│   └── screenshots/              # SVG architectural UI mockups
+│   └── screenshots/              # Scalable SVG UI preview diagrams
 ├── public/
 │   ├── data/
 │   │   └── items.json            # 24 seed items with daysAgo offsets

@@ -6,7 +6,11 @@ export default function ItemImage({ src, alt, category, className = '' }) {
   const [hasError, setHasError] = useState(false)
 
   const catObj = getCategory(category)
-  const placeholderPath = `${import.meta.env.BASE_URL}images/placeholders/${catObj.placeholder || 'generic.svg'}`
+  const basePath = (import.meta.env.BASE_URL || '/').endsWith('/')
+    ? import.meta.env.BASE_URL || '/'
+    : `${import.meta.env.BASE_URL}/`
+
+  const placeholderPath = `${basePath}images/placeholders/${catObj.placeholder || 'generic.svg'}`
 
   let imageSrc = placeholderPath
   if (src && !hasError) {
@@ -14,7 +18,7 @@ export default function ItemImage({ src, alt, category, className = '' }) {
       imageSrc = src
     } else {
       const cleanPath = src.replace(/^\/+/, '')
-      imageSrc = `${import.meta.env.BASE_URL}${cleanPath}`
+      imageSrc = `${basePath}${cleanPath}`
     }
   }
 
