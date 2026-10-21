@@ -1,14 +1,17 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useItems } from './hooks/useItems.js'
 import { useFilters } from './hooks/useFilters.js'
 import { useDebouncedValue } from './hooks/useDebouncedValue.js'
 import { filterItems } from './utils/filterItems.js'
+import { sortItems } from './utils/sortItems.js'
+import { distanceBetween, formatDistanceMeters } from './utils/distance.js'
 import Header from './components/layout/Header.jsx'
 import Footer from './components/layout/Footer.jsx'
 import PageContainer from './components/layout/PageContainer.jsx'
 import SearchBar from './components/filters/SearchBar.jsx'
 import FilterPanel from './components/filters/FilterPanel.jsx'
 import ResultsSummary from './components/filters/ResultsSummary.jsx'
+import SortSelect from './components/filters/SortSelect.jsx'
 import ItemGrid from './components/items/ItemGrid.jsx'
 import ItemCard from './components/items/ItemCard.jsx'
 import ItemCardSkeleton from './components/items/ItemCardSkeleton.jsx'
@@ -20,25 +23,41 @@ export default function App() {
   const { items, status, error, reload } = useItems()
   const { filters, setFilter, resetFilters } = useFilters()
 
-  // Raw search input state for instant responsiveness
+  // Raw search input state for instant typing responsiveness
   const [searchText, setSearchText] = useState(filters.q || '')
   const debouncedSearchText = useDebouncedValue(searchText, 300)
+  const hadQueryRef = useRef(Boolean(filters.q))
 
   // Keep debounced search query synced with filters
   useEffect(() => {
     if (debouncedSearchText !== filters.q) {
       setFilter('q', debouncedSearchText)
-    }
-  }, [debouncedSearchText, filters.q, setFilter])
 
-  // Sync back if filters.q changes externally (e.g. resetFilters or chips)
+      // Auto-switch to "relevance" when search term is first entered
+      if (debouncedSearchText && !hadQueryRef.current) {
+        setFilter('sort', 'relevance')
+        hadQueryRef.current = true
+      } else if (!debouncedSearchText) {
+        hadQueryRef.current = false
+        if (filters.sort === 'relevance') {
+          setFilter('sort', 'newest')
+        }
+      }
+    }
+  }, [debouncedSearchText, filters.q, filters.sort, setFilter])
+
+  // Sync back if filters.q is cleared externally (e.g. chip or reset)
   useEffect(() => {
     if (filters.q !== searchText && filters.q === '') {
       setSearchText('')
+      hadQueryRef.current = false
+      if (filters.sort === 'relevance') {
+        setFilter('sort', 'newest')
+      }
     }
-  }, [filters.q, searchText])
+  }, [filters.q, searchText, filters.sort, setFilter])
 
-  // Category & status counts calculation
+  // Category & status counts
   const counts = useMemo(() => {
     const statusCounts = { all: items.length, lost: 0, found: 0, claimed: 0 }
     const categoryCounts = {}
@@ -53,9 +72,13 @@ export default function App() {
     return { status: statusCounts, categories: categoryCounts }
   }, [items])
 
-  // Pure filtering
+  // Pure filtering followed by pure sorting
   const visibleItems = useMemo(() => {
-    return filterItems(items, filters)
+    const filtered = filterItems(items, filters)
+    return sortItems(filtered, filters.sort, {
+      q: filters.q,
+      ref: filters.ref,
+    })
   }, [items, filters])
 
   const handleClearSearch = () => {
@@ -143,6 +166,15 @@ export default function App() {
                     total={items.length}
                     filters={filters}
                     onRemoveFilter={handleRemoveChip}
+                    sortSlot={
+                      <SortSelect
+                        value={filters.sort}
+                        onChange={(sortVal) => setFilter('sort', sortVal)}
+                        hasQuery={Boolean(filters.q)}
+                        referenceLocation={filters.ref}
+                        onReferenceChange={(refVal) => setFilter('ref', refVal)}
+                      />
+                    }
                   />
 
                   {visibleItems.length === 0 ? (
@@ -160,6 +192,13 @@ export default function App() {
                           key={item.id}
                           item={item}
                           onOpen={handleOpenItem}
+                          distanceHint={
+                            filters.sort === 'nearest'
+                              ? formatDistanceMeters(
+                                  distanceBetween(item.locationId, filters.ref),
+                                )
+                              : null
+                          }
                         />
                       ))}
                     </ItemGrid>
