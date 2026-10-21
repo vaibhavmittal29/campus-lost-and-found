@@ -3,9 +3,11 @@ import { Plus } from 'lucide-react'
 import { useItems } from './hooks/useItems.js'
 import { useFilters } from './hooks/useFilters.js'
 import { useDebouncedValue } from './hooks/useDebouncedValue.js'
+import { useToast } from './hooks/useToast.js'
 import { filterItems } from './utils/filterItems.js'
 import { sortItems } from './utils/sortItems.js'
 import { distanceBetween, formatDistanceMeters } from './utils/distance.js'
+import { resetDemoData } from './api/itemsApi.js'
 import Header from './components/layout/Header.jsx'
 import Footer from './components/layout/Footer.jsx'
 import PageContainer from './components/layout/PageContainer.jsx'
@@ -20,11 +22,13 @@ import ItemDetailDialog from './components/items/ItemDetailDialog.jsx'
 import PostItemDialog from './components/post/PostItemDialog.jsx'
 import EmptyState from './components/ui/EmptyState.jsx'
 import ErrorState from './components/ui/ErrorState.jsx'
+import ToastContainer from './components/ui/Toast.jsx'
 import './App.css'
 
 export default function App() {
   const { items, status, error, reload, addItem, claim } = useItems()
-  const { filters, setFilter, resetFilters } = useFilters()
+  const { filters, setFilter, resetFilters, isFiltered } = useFilters()
+  const { toast } = useToast()
 
   const [isPostOpen, setIsPostOpen] = useState(false)
   const [selectedItemId, setSelectedItemId] = useState(null)
@@ -138,24 +142,44 @@ export default function App() {
   }
 
   const handleCreatedItem = async (payload) => {
-    const newItem = await addItem(payload)
-    setNewlyPostedId(newItem.id)
+    try {
+      const newItem = await addItem(payload)
+      setNewlyPostedId(newItem.id)
 
-    // Smooth scroll to top to see newly created item
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+      // Smooth scroll to top to view the new item
+      window.scrollTo({ top: 0, behavior: 'smooth' })
 
-    // Highlight card for 2.5 seconds
-    setTimeout(() => {
-      setNewlyPostedId(null)
-    }, 2500)
+      toast.success('Your item has been posted successfully!')
+
+      // Highlight card for 2.5 seconds
+      setTimeout(() => {
+        setNewlyPostedId(null)
+      }, 2500)
+    } catch (err) {
+      toast.error(err.message || 'Failed to post item.')
+    }
   }
 
   const handleClaimItem = async (id, claimPayload) => {
-    await claim(id, claimPayload)
+    try {
+      await claim(id, claimPayload)
+      toast.success('Claim submitted! Direct contact details are now revealed.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to submit claim.')
+    }
   }
 
-  const handleResetDemo = () => {
-    // Will be wired in Phase 8
+  const handleResetDemo = async () => {
+    const confirmed = window.confirm(
+      'Reset all demo data? This will restore the original 24 items and clear user posts and claims.',
+    )
+    if (!confirmed) return
+
+    resetDemoData()
+    resetFilters()
+    setSearchText('')
+    await reload()
+    toast.info('Demo items restored to factory default.')
   }
 
   return (
@@ -207,6 +231,9 @@ export default function App() {
               {status === 'ready' && items.length === 0 && (
                 <EmptyState
                   variant="no-items"
+                  title="No campus items found"
+                  description="Be the first to report a lost or found item at VIT Vellore."
+                  actionLabel="Post an item"
                   onAction={() => setIsPostOpen(true)}
                 />
               )}
@@ -232,10 +259,18 @@ export default function App() {
                   {visibleItems.length === 0 ? (
                     <EmptyState
                       variant="no-results"
-                      title="No matching campus items"
-                      description="We couldn't find anything matching your active filters or search terms. Try clearing some filters or searching for a broader term."
-                      actionLabel="Clear all filters"
-                      onAction={resetFilters}
+                      title={
+                        filters.q && !isFiltered
+                          ? `No items found for "${filters.q}"`
+                          : 'No matching campus items'
+                      }
+                      description={
+                        filters.q
+                          ? 'Check your spelling or try broader keywords like "bottle", "card", or "key".'
+                          : 'Try clearing one or more active filters to broaden your search.'
+                      }
+                      actionLabel={filters.q && !isFiltered ? 'Clear search' : 'Clear all filters'}
+                      onAction={filters.q && !isFiltered ? handleClearSearch : resetFilters}
                     />
                   ) : (
                     <ItemGrid>
@@ -289,6 +324,9 @@ export default function App() {
       />
 
       <Footer onResetDemo={handleResetDemo} />
+
+      {/* Global toast notification system */}
+      <ToastContainer />
     </div>
   )
 }

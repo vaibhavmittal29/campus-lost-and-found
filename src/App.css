@@ -47,6 +47,25 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0; /* Prevents overflow in grid child */
+  scroll-margin-top: calc(var(--header-height) + 16px);
+  animation: content-fade-in 250ms ease-in-out;
+}
+
+@keyframes content-fade-in {
+  from {
+    opacity: 0.6;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .results-section {
+    animation: none;
+  }
 }
 
 .results-placeholder {
