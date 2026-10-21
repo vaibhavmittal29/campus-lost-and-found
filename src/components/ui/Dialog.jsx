@@ -59,6 +59,7 @@ export default function Dialog({
       onCancel={handleCancel}
       onClick={handleClick}
       aria-label={ariaLabel || title}
+      aria-modal="true"
     >
       <div className="modal-dialog__container">
         <div className="modal-dialog__header">

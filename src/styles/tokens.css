@@ -5,9 +5,9 @@
   --color-text: #1f1f2e;
   --color-text-muted: #5c5c70;
   --color-border: #e1e1ea;
-  --color-primary: #e65a00;          /* warm orange accent */
-  --color-primary-hover: #c44d00;
-  --color-focus: #2b5fff;
+  --color-primary: #c94e00;          /* warm orange accent — WCAG AA 4.7:1 contrast on white */
+  --color-primary-hover: #a84100;
+  --color-focus: #2563eb;
 
   --color-lost-bg: #fde8e8;
   --color-lost-fg: #9b1c1c;

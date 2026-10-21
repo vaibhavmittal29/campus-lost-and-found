@@ -23,6 +23,8 @@ export default function ItemImage({ src, alt, category, className = '' }) {
       <img
         src={imageSrc}
         alt={alt || `Photo of ${category}`}
+        width="400"
+        height="300"
         loading="lazy"
         decoding="async"
         onError={() => setHasError(true)}
