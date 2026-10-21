@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 680" width="100%" height="100%" fill="none">
+  <rect width="600" height="680" rx="16" fill="#ffffff" stroke="#e1e1ea"/>
+  <rect width="600" height="56" rx="16" fill="#ffffff"/>
+  <text x="24" y="36" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#1f1f2e">Item Details</text>
+  <text x="560" y="36" font-family="system-ui, sans-serif" font-size="18" fill="#5c5c70">✕</text>
+  <line x1="0" y1="56" x2="600" y2="56" stroke="#e1e1ea"/>
+
+  <!-- Image banner -->
+  <rect x="24" y="76" width="552" height="180" rx="12" fill="#eff6ff"/>
+  <rect x="496" y="88" width="68" height="24" rx="12" fill="#e8e8ef"/>
+  <text x="530" y="104" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#3f3f55" text-anchor="middle">CLAIMED</text>
+
+  <!-- Title & details -->
+  <text x="24" y="286" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#1f1f2e">Casio Scientific Calculator fx-991EX</text>
+  <rect x="24" y="300" width="552" height="48" rx="8" fill="#f7f7fa"/>
+  <text x="40" y="330" font-family="system-ui, sans-serif" font-size="13" fill="#1f1f2e">📍 Gandhi Block (GDN)   ·   🗓 20 Oct 2026 (Yesterday)</text>
+
+  <!-- Revealed Contact Box -->
+  <rect x="24" y="368" width="552" height="68" rx="10" fill="#e3f6ea" stroke="#bbf7d0"/>
+  <text x="40" y="396" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#14532d">DIRECT POSTER CONTACT UNLOCKED:</text>
+  <text x="40" y="420" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#14532d">gdn.lab@example.com</text>
+  <rect x="490" y="386" width="70" height="32" rx="6" fill="#ffffff" stroke="#bbf7d0"/>
+  <text x="525" y="406" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#14532d" text-anchor="middle">Copy</text>
+
+  <!-- Claim confirmation note -->
+  <rect x="24" y="456" width="552" height="60" rx="8" fill="#f8fafc" stroke="#e1e1ea"/>
+  <text x="40" y="482" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#1f1f2e">Claim verified by Vaibhav Mittal</text>
+  <text x="40" y="500" font-family="system-ui, sans-serif" font-size="12" fill="#5c5c70">"Has small scratch on solar panel &amp; initials VM on back cover."</text>
+
+  <!-- Footer buttons -->
+  <rect x="472" y="605" width="104" height="42" rx="8" fill="#e8e8ef"/>
+  <text x="524" y="631" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#5c5c70" text-anchor="middle">Already claimed</text>
+</svg>

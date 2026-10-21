@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 680" width="100%" height="100%" fill="none">
+  <rect width="600" height="680" rx="16" fill="#ffffff" stroke="#e1e1ea"/>
+  <rect width="600" height="56" rx="16" fill="#ffffff"/>
+  <text x="24" y="36" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#1f1f2e">Report an Item</text>
+  <text x="560" y="36" font-family="system-ui, sans-serif" font-size="18" fill="#5c5c70">✕</text>
+  <line x1="0" y1="56" x2="600" y2="56" stroke="#e1e1ea"/>
+
+  <!-- Type radio -->
+  <rect x="24" y="80" width="260" height="42" rx="8" fill="#fde8e8" stroke="#f87171"/>
+  <text x="154" y="106" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#9b1c1c" text-anchor="middle">I lost something</text>
+  <rect x="300" y="80" width="276" height="42" rx="8" fill="#f7f7fa" stroke="#e1e1ea"/>
+  <text x="438" y="106" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#5c5c70" text-anchor="middle">I found something</text>
+
+  <!-- Name input -->
+  <text x="24" y="152" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#1f1f2e">Item Name *</text>
+  <rect x="24" y="162" width="552" height="42" rx="8" fill="#ffffff" stroke="#e1e1ea"/>
+  <text x="36" y="188" font-family="system-ui, sans-serif" font-size="13" fill="#1f1f2e">Casio scientific calculator fx-991EX</text>
+
+  <!-- Dropdowns -->
+  <text x="24" y="232" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#1f1f2e">Category *</text>
+  <rect x="24" y="242" width="260" height="42" rx="8" fill="#ffffff" stroke="#e1e1ea"/>
+  <text x="36" y="268" font-family="system-ui, sans-serif" font-size="13" fill="#1f1f2e">Electronics</text>
+
+  <text x="300" y="232" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#1f1f2e">Location *</text>
+  <rect x="300" y="242" width="276" height="42" rx="8" fill="#ffffff" stroke="#e1e1ea"/>
+  <text x="312" y="268" font-family="system-ui, sans-serif" font-size="13" fill="#1f1f2e">Gandhi Block (GDN)</text>
+
+  <!-- Image preview uploader -->
+  <rect x="24" y="310" width="552" height="100" rx="10" fill="#fffaf5" stroke="#fed7aa" stroke-dasharray="4 4"/>
+  <text x="300" y="355" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#c94e00" text-anchor="middle">calculator-photo.jpg (128 KB)</text>
+  <text x="300" y="375" font-family="system-ui, sans-serif" font-size="11" fill="#5c5c70" text-anchor="middle">Photo compressed &amp; preview ready</text>
+
+  <!-- Buttons -->
+  <rect x="370" y="605" width="90" height="42" rx="8" fill="#ffffff" stroke="#e1e1ea"/>
+  <text x="415" y="631" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#5c5c70" text-anchor="middle">Cancel</text>
+  <rect x="472" y="605" width="104" height="42" rx="8" fill="#c94e00"/>
+  <text x="524" y="631" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#ffffff" text-anchor="middle">Post Item</text>
+</svg>

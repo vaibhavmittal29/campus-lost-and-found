@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 680" width="100%" height="100%" fill="none">
+  <rect width="400" height="680" rx="16" fill="#f7f7fa"/>
+  <!-- Top header -->
+  <rect width="400" height="60" fill="#ffffff"/>
+  <rect y="60" width="400" height="1" fill="#e1e1ea"/>
+  <rect x="16" y="14" width="32" height="32" rx="8" fill="#c94e00"/>
+  <text x="56" y="34" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#1f1f2e">Campus Lost &amp; Found</text>
+  <text x="56" y="47" font-family="system-ui, sans-serif" font-size="10" fill="#5c5c70">VIT Vellore</text>
+
+  <!-- Search bar -->
+  <rect x="16" y="74" width="368" height="44" rx="8" fill="#ffffff" stroke="#e1e1ea"/>
+  <text x="52" y="101" font-family="system-ui, sans-serif" font-size="13" fill="#5c5c70">Search items, places…</text>
+
+  <!-- Mobile toolbar: Filters button + Sort select -->
+  <rect x="16" y="128" width="110" height="38" rx="8" fill="#ffffff" stroke="#e1e1ea"/>
+  <text x="52" y="152" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#1f1f2e">Filters</text>
+  <circle cx="106" cy="147" r="8" fill="#c94e00"/>
+  <text x="106" y="151" font-family="system-ui, sans-serif" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+
+  <rect x="230" y="128" width="154" height="38" rx="8" fill="#ffffff" stroke="#e1e1ea"/>
+  <text x="242" y="152" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#1f1f2e">Sort: Newest</text>
+
+  <!-- Results summary -->
+  <text x="16" y="190" font-family="system-ui, sans-serif" font-size="12" fill="#5c5c70">Showing <tspan font-weight="700" fill="#1f1f2e">12</tspan> of 24 items</text>
+
+  <!-- Single column card -->
+  <rect x="16" y="206" width="368" height="260" rx="12" fill="#ffffff" stroke="#e1e1ea"/>
+  <rect x="16" y="206" width="368" height="150" rx="12" fill="#eff6ff"/>
+  <rect x="310" y="218" width="60" height="22" rx="11" fill="#e3f6ea"/>
+  <text x="340" y="233" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#14532d" text-anchor="middle">FOUND</text>
+  <text x="32" y="380" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#1f1f2e">Blue Hydro Flask Bottle</text>
+  <text x="32" y="405" font-family="system-ui, sans-serif" font-size="13" fill="#5c5c70">📍 Technology Tower (TT)</text>
+  <text x="32" y="425" font-family="system-ui, sans-serif" font-size="12" fill="#5c5c70">🗓 19 Oct 2026 · 2 days ago</text>
+
+  <!-- Floating action button -->
+  <circle cx="340" cy="620" r="26" fill="#c94e00"/>
+  <text x="340" y="628" font-family="system-ui, sans-serif" font-size="28" font-weight="300" fill="#ffffff" text-anchor="middle">+</text>
+</svg>
