@@ -19,6 +19,28 @@
   border-color: #d1d5db;
 }
 
+.item-card--highlighted {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(230, 90, 0, 0.3), var(--shadow-hover) !important;
+  animation: card-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes card-pulse {
+  from {
+    transform: scale(1.01);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item-card--highlighted {
+    animation: none;
+    transform: none;
+  }
+}
+
 .item-card:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;

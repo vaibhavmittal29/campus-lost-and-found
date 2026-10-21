@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
+import { Plus } from 'lucide-react'
 import { useItems } from './hooks/useItems.js'
 import { useFilters } from './hooks/useFilters.js'
 import { useDebouncedValue } from './hooks/useDebouncedValue.js'
@@ -15,13 +16,17 @@ import SortSelect from './components/filters/SortSelect.jsx'
 import ItemGrid from './components/items/ItemGrid.jsx'
 import ItemCard from './components/items/ItemCard.jsx'
 import ItemCardSkeleton from './components/items/ItemCardSkeleton.jsx'
+import PostItemDialog from './components/post/PostItemDialog.jsx'
 import EmptyState from './components/ui/EmptyState.jsx'
 import ErrorState from './components/ui/ErrorState.jsx'
 import './App.css'
 
 export default function App() {
-  const { items, status, error, reload } = useItems()
+  const { items, status, error, reload, addItem } = useItems()
   const { filters, setFilter, resetFilters } = useFilters()
+
+  const [isPostOpen, setIsPostOpen] = useState(false)
+  const [newlyPostedId, setNewlyPostedId] = useState(null)
 
   // Raw search input state for instant typing responsiveness
   const [searchText, setSearchText] = useState(filters.q || '')
@@ -101,8 +106,17 @@ export default function App() {
     }
   }
 
-  const handlePostClick = () => {
-    // Will open PostItemDialog in Phase 6
+  const handleCreatedItem = async (payload) => {
+    const newItem = await addItem(payload)
+    setNewlyPostedId(newItem.id)
+
+    // Smooth scroll to top to see newly created item
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    // Highlight card for 2.5 seconds
+    setTimeout(() => {
+      setNewlyPostedId(null)
+    }, 2500)
   }
 
   const handleResetDemo = () => {
@@ -115,7 +129,7 @@ export default function App() {
         Skip to results
       </a>
 
-      <Header onPostClick={handlePostClick} />
+      <Header onPostClick={() => setIsPostOpen(true)} />
 
       <main className="main-content">
         <PageContainer>
@@ -156,7 +170,10 @@ export default function App() {
               )}
 
               {status === 'ready' && items.length === 0 && (
-                <EmptyState variant="no-items" onAction={handlePostClick} />
+                <EmptyState
+                  variant="no-items"
+                  onAction={() => setIsPostOpen(true)}
+                />
               )}
 
               {status === 'ready' && items.length > 0 && (
@@ -192,6 +209,7 @@ export default function App() {
                           key={item.id}
                           item={item}
                           onOpen={handleOpenItem}
+                          isHighlighted={item.id === newlyPostedId}
                           distanceHint={
                             filters.sort === 'nearest'
                               ? formatDistanceMeters(
@@ -209,6 +227,23 @@ export default function App() {
           </div>
         </PageContainer>
       </main>
+
+      {/* Floating Action Button on mobile */}
+      <button
+        type="button"
+        className="floating-post-btn"
+        onClick={() => setIsPostOpen(true)}
+        aria-label="Post a new lost or found item"
+      >
+        <Plus size={28} aria-hidden="true" />
+      </button>
+
+      {/* Post item modal dialog */}
+      <PostItemDialog
+        open={isPostOpen}
+        onClose={() => setIsPostOpen(false)}
+        onCreated={handleCreatedItem}
+      />
 
       <Footer onResetDemo={handleResetDemo} />
     </div>

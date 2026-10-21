@@ -57,3 +57,37 @@
   text-align: center;
   color: var(--color-text-muted);
 }
+
+/* Floating Action Button (Mobile only) */
+.floating-post-btn {
+  position: fixed;
+  bottom: var(--space-5);
+  right: var(--space-5);
+  z-index: 90;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  box-shadow: 0 4px 14px rgba(230, 90, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.floating-post-btn:hover {
+  background-color: var(--color-primary-hover);
+  transform: scale(1.05);
+}
+
+.floating-post-btn:active {
+  transform: scale(0.95);
+}
+
+@media (min-width: 640px) {
+  .floating-post-btn {
+    display: none;
+  }
+}

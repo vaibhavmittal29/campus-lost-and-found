@@ -6,13 +6,15 @@ import { getLocation } from '../../constants/locations.js'
 import { formatDate, timeAgo } from '../../utils/formatDate.js'
 import './ItemCard.css'
 
-function ItemCard({ item, onOpen, distanceHint = null }) {
+function ItemCard({ item, onOpen, distanceHint = null, isHighlighted = false }) {
   const location = getLocation(item.locationId)
   const isClaimed = item.status === 'claimed'
 
   return (
     <article
-      className={`item-card ${isClaimed ? 'item-card--claimed' : ''}`}
+      className={`item-card ${isClaimed ? 'item-card--claimed' : ''} ${
+        isHighlighted ? 'item-card--highlighted' : ''
+      }`.trim()}
       onClick={() => onOpen && onOpen(item)}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && onOpen) {
