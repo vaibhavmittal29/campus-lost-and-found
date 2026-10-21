@@ -16,22 +16,55 @@ import SortSelect from './components/filters/SortSelect.jsx'
 import ItemGrid from './components/items/ItemGrid.jsx'
 import ItemCard from './components/items/ItemCard.jsx'
 import ItemCardSkeleton from './components/items/ItemCardSkeleton.jsx'
+import ItemDetailDialog from './components/items/ItemDetailDialog.jsx'
 import PostItemDialog from './components/post/PostItemDialog.jsx'
 import EmptyState from './components/ui/EmptyState.jsx'
 import ErrorState from './components/ui/ErrorState.jsx'
 import './App.css'
 
 export default function App() {
-  const { items, status, error, reload, addItem } = useItems()
+  const { items, status, error, reload, addItem, claim } = useItems()
   const { filters, setFilter, resetFilters } = useFilters()
 
   const [isPostOpen, setIsPostOpen] = useState(false)
+  const [selectedItemId, setSelectedItemId] = useState(null)
   const [newlyPostedId, setNewlyPostedId] = useState(null)
 
   // Raw search input state for instant typing responsiveness
   const [searchText, setSearchText] = useState(filters.q || '')
   const debouncedSearchText = useDebouncedValue(searchText, 300)
   const hadQueryRef = useRef(Boolean(filters.q))
+
+  // Deep-link query check on load (?item=itm_001)
+  useEffect(() => {
+    if (status === 'ready' && items.length > 0) {
+      const params = new URLSearchParams(window.location.search)
+      const itemId = params.get('item')
+      if (itemId && !selectedItemId) {
+        const found = items.find((i) => i.id === itemId)
+        if (found) {
+          setSelectedItemId(found.id)
+        }
+      }
+    }
+  }, [status, items, selectedItemId])
+
+  // Sync selected item in URL
+  const handleOpenItem = (item) => {
+    setSelectedItemId(item.id)
+    const params = new URLSearchParams(window.location.search)
+    params.set('item', item.id)
+    window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`)
+  }
+
+  const handleCloseDetail = () => {
+    setSelectedItemId(null)
+    const params = new URLSearchParams(window.location.search)
+    params.delete('item')
+    const qs = params.toString()
+    const newPath = qs ? `${window.location.pathname}?${qs}` : window.location.pathname
+    window.history.replaceState(null, '', newPath)
+  }
 
   // Keep debounced search query synced with filters
   useEffect(() => {
@@ -86,6 +119,11 @@ export default function App() {
     })
   }, [items, filters])
 
+  // Selected item object lookup
+  const selectedItem = useMemo(() => {
+    return items.find((i) => i.id === selectedItemId) || null
+  }, [items, selectedItemId])
+
   const handleClearSearch = () => {
     setSearchText('')
     setFilter('q', '')
@@ -96,13 +134,6 @@ export default function App() {
       handleClearSearch()
     } else {
       setFilter(key, 'all')
-    }
-  }
-
-  const handleOpenItem = (item) => {
-    // Will open ItemDetailDialog in Phase 7
-    if (item) {
-      // Prepared for dialog mounting
     }
   }
 
@@ -117,6 +148,10 @@ export default function App() {
     setTimeout(() => {
       setNewlyPostedId(null)
     }, 2500)
+  }
+
+  const handleClaimItem = async (id, claimPayload) => {
+    await claim(id, claimPayload)
   }
 
   const handleResetDemo = () => {
@@ -243,6 +278,14 @@ export default function App() {
         open={isPostOpen}
         onClose={() => setIsPostOpen(false)}
         onCreated={handleCreatedItem}
+      />
+
+      {/* Item detail & claim dialog */}
+      <ItemDetailDialog
+        item={selectedItem}
+        open={Boolean(selectedItem)}
+        onClose={handleCloseDetail}
+        onClaimed={handleClaimItem}
       />
 
       <Footer onResetDemo={handleResetDemo} />
