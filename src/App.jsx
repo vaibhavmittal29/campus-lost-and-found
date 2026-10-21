@@ -1,8 +1,14 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useItems } from './hooks/useItems.js'
+import { useFilters } from './hooks/useFilters.js'
+import { useDebouncedValue } from './hooks/useDebouncedValue.js'
+import { filterItems } from './utils/filterItems.js'
 import Header from './components/layout/Header.jsx'
 import Footer from './components/layout/Footer.jsx'
 import PageContainer from './components/layout/PageContainer.jsx'
+import SearchBar from './components/filters/SearchBar.jsx'
+import FilterPanel from './components/filters/FilterPanel.jsx'
+import ResultsSummary from './components/filters/ResultsSummary.jsx'
 import ItemGrid from './components/items/ItemGrid.jsx'
 import ItemCard from './components/items/ItemCard.jsx'
 import ItemCardSkeleton from './components/items/ItemCardSkeleton.jsx'
@@ -12,11 +18,64 @@ import './App.css'
 
 export default function App() {
   const { items, status, error, reload } = useItems()
-  const [, setSelectedItem] = useState(null)
+  const { filters, setFilter, resetFilters } = useFilters()
+
+  // Raw search input state for instant responsiveness
+  const [searchText, setSearchText] = useState(filters.q || '')
+  const debouncedSearchText = useDebouncedValue(searchText, 300)
+
+  // Keep debounced search query synced with filters
+  useEffect(() => {
+    if (debouncedSearchText !== filters.q) {
+      setFilter('q', debouncedSearchText)
+    }
+  }, [debouncedSearchText, filters.q, setFilter])
+
+  // Sync back if filters.q changes externally (e.g. resetFilters or chips)
+  useEffect(() => {
+    if (filters.q !== searchText && filters.q === '') {
+      setSearchText('')
+    }
+  }, [filters.q, searchText])
+
+  // Category & status counts calculation
+  const counts = useMemo(() => {
+    const statusCounts = { all: items.length, lost: 0, found: 0, claimed: 0 }
+    const categoryCounts = {}
+
+    items.forEach((item) => {
+      if (statusCounts[item.status] !== undefined) {
+        statusCounts[item.status] += 1
+      }
+      categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1
+    })
+
+    return { status: statusCounts, categories: categoryCounts }
+  }, [items])
+
+  // Pure filtering
+  const visibleItems = useMemo(() => {
+    return filterItems(items, filters)
+  }, [items, filters])
+
+  const handleClearSearch = () => {
+    setSearchText('')
+    setFilter('q', '')
+  }
+
+  const handleRemoveChip = (key) => {
+    if (key === 'q') {
+      handleClearSearch()
+    } else {
+      setFilter(key, 'all')
+    }
+  }
 
   const handleOpenItem = (item) => {
     // Will open ItemDetailDialog in Phase 7
-    setSelectedItem(item)
+    if (item) {
+      // Prepared for dialog mounting
+    }
   }
 
   const handlePostClick = () => {
@@ -38,16 +97,21 @@ export default function App() {
       <main className="main-content">
         <PageContainer>
           <section className="search-section" aria-label="Search items">
-            <div className="search-placeholder">
-              Search bar placeholder (Phase 4)
-            </div>
+            <SearchBar
+              value={searchText}
+              onChange={setSearchText}
+              onClear={handleClearSearch}
+            />
           </section>
 
           <div className="content-grid">
             <aside className="filters-sidebar" aria-label="Filters">
-              <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)' }}>
-                Filter panel placeholder (Phase 4)
-              </p>
+              <FilterPanel
+                filters={filters}
+                onChange={setFilter}
+                onReset={resetFilters}
+                counts={counts}
+              />
             </aside>
 
             <section
@@ -73,15 +137,34 @@ export default function App() {
               )}
 
               {status === 'ready' && items.length > 0 && (
-                <ItemGrid>
-                  {items.map((item) => (
-                    <ItemCard
-                      key={item.id}
-                      item={item}
-                      onOpen={handleOpenItem}
+                <>
+                  <ResultsSummary
+                    count={visibleItems.length}
+                    total={items.length}
+                    filters={filters}
+                    onRemoveFilter={handleRemoveChip}
+                  />
+
+                  {visibleItems.length === 0 ? (
+                    <EmptyState
+                      variant="no-results"
+                      title="No matching campus items"
+                      description="We couldn't find anything matching your active filters or search terms. Try clearing some filters or searching for a broader term."
+                      actionLabel="Clear all filters"
+                      onAction={resetFilters}
                     />
-                  ))}
-                </ItemGrid>
+                  ) : (
+                    <ItemGrid>
+                      {visibleItems.map((item) => (
+                        <ItemCard
+                          key={item.id}
+                          item={item}
+                          onOpen={handleOpenItem}
+                        />
+                      ))}
+                    </ItemGrid>
+                  )}
+                </>
               )}
             </section>
           </div>
