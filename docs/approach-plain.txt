@@ -1,0 +1,85 @@
+Approach Summary — Campus Lost & Found
+
+1. Overview and Problem Understanding
+
+When I began this project for the Mozilla Firefox Club frontend recruitment, my goal was to build a dependable, accessible single-page application for VIT Vellore students to browse, filter, report, and claim lost and found campus belongings. Across our campus, thousands of students move daily between academic blocks, labs, libraries, and hostels. Everyday essentials like student ID cards, room keys, scientific calculators, and water bottles are misplaced constantly. A lost-and-found board must load quickly, look clear on mobile screens during rushed class transitions, and feel intuitive to operate.
+
+I scoped the project around frontend craftsmanship, responsive layout, and code clarity. I chose not to introduce backend servers, databases, user authentication, or real GPS tracking. Instead, I structured data around a realistic seed dataset of twenty-four campus items paired with browser localStorage for user submissions and claim status overrides. By focusing strictly on client-side state, accessibility, and forgiving validation, I ensured every file in the repository remains clean, purposeful, and easy to explain in an interview.
+
+2. Tech Stack and Technical Decisions
+
+I chose React 18 with Vite 5 as my frontend foundation. As a first-year student, I wanted a fast development setup producing small, performant production bundles without build tool friction. Vite delivers instant hot module replacement and straightforward configuration for sub-path hosting on GitHub Pages. I avoided client-side routing libraries like React Router because this application is fundamentally a focused single-page dashboard where route management would introduce needless complexity without benefiting students.
+
+For styling, I chose plain CSS with custom properties rather than Tailwind CSS, Bootstrap, or component UI kits. Writing CSS by hand demonstrates genuine understanding of web layout primitives, including CSS Grid, Flexbox, media queries, and the cascade. Storing design tokens such as colors, spacing units, border radii, and shadows inside tokens.css made visual consistency straightforward while keeping the final CSS bundle under six kilobytes. For icons, I selected lucide-react because its SVG icons are clean, lightweight, and easily paired with assistive labels. For modals, I relied on the browser's native HTML5 dialog element rather than bulky third-party modal libraries. [OPTIONAL] During development, I used Antigravity as an AI coding assistant and thoroughly reviewed, tested, and verified each phase's code myself before committing it.
+
+3. Architecture, Folder Structure, and Data Flow
+
+I structured the project inside the src directory into dedicated domain folders: api for simulated network transport, components grouped by responsibility (layout, items, filters, post, ui), constants for campus locations and categories, context for notifications, hooks for reusable lifecycle logic, styles for design tokens and resets, and utils for pure calculations. This separation ensures presentational components remain under one hundred and fifty lines.
+
+Data flows in a strict unidirectional pipeline. The custom hook useItems communicates with itemsApi.js to load seed data, simulate network latency, and merge persistent localStorage changes. Once items load into state, the application never mutates the original array. Instead, pure utility functions compute visible items inside useMemo hooks. First, filterItems evaluates all active criteria. Next, sortItems orders the filtered results based on the chosen sort mode. Finally, the derived array is rendered by ItemGrid. Filter state is managed by useFilters, which mirrors active parameters into URL query strings using window.history.replaceState, allowing students to share filtered searches directly via link.
+
+4. Core Features Implementation
+
+Item Cards and Grid
+The main browsing interface is powered by ItemGrid and ItemCard. The grid uses CSS Grid with repeat(auto-fill, minmax(240px, 1fr)), reflowing from one column on phones to two on tablets, three on laptops, and four on wide monitors without separate media queries for each step. Each ItemCard displays an aspect-ratio-locked four-by-three image, an overlaid status badge, a category pill, a campus location with building label, and a relative date format. To maintain consistent card heights across uneven content, titles are clamped to two lines using CSS line clamping, and descriptions truncate cleanly without disrupting surrounding cards. The entire card operates as an accessible button with high-contrast focus rings.
+
+Search and Multi-Dimensional Filters
+Search and filtering allow students to locate lost belongings rapidly. The search bar is controlled by raw keystrokes but evaluates filtering through a debounced value. The pure utility filterItems enforces strict AND logic: every query word typed by the user must match within the item's title, description, category, or location label. Simultaneously, students can filter by item status (All, Lost, Found, Claimed) using a segmented radio control, select categories through clickable chips displaying item counts, or choose specific campus buildings from a dropdown. Active filter criteria render as removable chips in ResultsSummary, which houses a polite ARIA live region that announces result count changes to screen readers.
+
+The Post Item Form
+The reporting flow lives in PostItemDialog, which wraps PostItemForm inside an accessible dialog. Students indicate whether they lost or found an item, enter a title, choose a category and location, pick an incident date within the last ninety days, write a description, optionally attach a photo, and provide a contact email or phone number. Each input is wrapped in FormField, which links labels, hints, and error messages via ARIA attributes. Submitting the form triggers client-side image compression, adds the new item to state, saves it to localStorage, smoothly scrolls the browser to the top of the grid, pulses the new card with a temporary highlight for two and a half seconds, and triggers a success toast.
+
+The Claim Flow
+When a student discovers their misplaced item in the grid, clicking the card opens ItemDetailDialog. To protect student privacy against spam, the finder's contact information remains concealed. If an item is listed as found, the primary action reads "This is mine — claim it"; if listed as lost, it reads "I found this item". Clicking this action reveals ClaimForm, where the student provides their name, contact details, and a verification message describing distinguishing characteristics that only the rightful owner would know. Submitting the claim updates the item's status to Claimed, stores the claim details, permanently reveals the poster's direct contact info with a one-click copy button, and disables duplicate claim submissions.
+
+5. Brownie-Point Features: Approach and Rationale
+
+Debounced Search
+Executing filter operations on every keystroke causes perceptible input stuttering. I implemented useDebouncedValue, a custom hook accepting any value and a 300ms delay. When typing, a timer starts; if another key is pressed within 300ms, the previous timer is cancelled in the cleanup return. Only when typing pauses does the debounced value update, triggering filterItems once and eliminating redundant calculations.
+
+Sorting, Campus Coordinates, and Relevance Scoring
+I implemented four sorting modes in sortItems.js: newest first, oldest first, nearest location, and best match. The "Nearest" sort models campus geography using a mock coordinate grid on a zero-to-one-hundred scale across twelve real VIT Vellore landmarks. When active, distanceBetween computes Euclidean distances from a selected reference landmark, displaying an estimated walking proximity tag. The "Best match" mode uses a relevance scoring algorithm in relevance.js awarding five points for title word-boundary starts, three points for title substrings, two points for category or location matches, and one point for description text. It activates automatically when search terms are entered.
+
+Image Preview and Client-Side Canvas Resizing
+Allowing students to attach photos makes lost items easily recognizable, but phone photos often exceed five megabytes, risking localStorage quota limits. In ImageUploader.jsx, selecting a photo generates an instant preview via URL.createObjectURL, with object URLs revoked on replacement or unmount. Before saving a post, imageUtils.js draws the image to an HTML5 canvas, scales it proportionally to an 800-pixel bounding box, and compresses it to a JPEG data URL at eighty percent quality. This reduces file size to roughly eighty kilobytes, enabling reliable persistence.
+
+Skeleton Loading and Empty/Error States
+During simulated data retrieval, ItemGrid renders eight ItemCardSkeleton placeholders matching the dimensions, aspect ratios, and padding of real cards. A CSS shimmer animation runs continuously across the placeholders, swapping seamlessly for real content once loaded after six to nine hundred milliseconds. EmptyState.jsx provides tailored states for an empty database, unmatched search queries with a clear search button, and over-filtered criteria. ErrorState.jsx handles simulated transport failures gracefully, offering a dedicated retry button.
+
+Form Validation UX
+Form validation in validators.js balances strictness with helpful guidance. Rather than flagging incomplete fields immediately, validation triggers on blur; once touched, fields re-validate on change so errors disappear as soon as corrected. Submitting an incomplete form shows an alert summary with error counts and automatically focuses the first invalid field, using actionable error messages.
+
+6. Responsive Design and Accessibility
+
+The interface follows a mobile-first philosophy. On viewports below 1024px, the sidebar is replaced by a compact mobile toolbar containing a "Filters" button with a badge indicating active filter counts. Clicking this button summons the full filter panel inside a slide-up bottom drawer Dialog. On screens 1024px and wider, the filter panel renders as a sticky sidebar that remains fixed while students scroll results. Dialogs use full-height views on phones, and floating action buttons ensure thumb-friendly posting on mobile devices.
+
+Accessibility was a core priority throughout. I used semantic HTML landmarks (header, main, aside, footer) and maintained a logical heading structure starting with a single h1. All interactive controls provide visible three-pixel focus outlines. Color choices guarantee body text and badges exceed WCAG AA contrast ratios (at least 4.5:1). Icons carry aria-hidden="true", status badges communicate state through icons and text rather than color alone, and screen readers receive updates via polite aria-live regions.
+
+7. Challenges and How I Solved Them
+
+Building this application presented several concrete engineering challenges:
+
+First, hosting on GitHub Pages introduced sub-path routing issues. Unlike local development at the root domain, GitHub Pages serves repositories under a sub-path (/campus-lost-and-found/). Hardcoded paths like /data/items.json broke in production. I solved this by configuring base in vite.config.js and creating a normalized basePath helper in itemsApi.js and ItemImage.jsx that safely prefixes import.meta.env.BASE_URL with consistent trailing slashes.
+
+Second, browser localStorage limitations created problems when storing user-uploaded photos. Five-megabyte camera files quickly exceeded browser storage limits. I resolved this by building an asynchronous canvas compression pipeline in imageUtils.js that scales images to an 800-pixel box and outputs compressed JPEGs, reducing file sizes by over ninety percent.
+
+Third, managing browser memory with preview URLs and timers required strict cleanup. Unmanaged object URLs cause memory leaks. In ImageUploader.jsx and useDebouncedValue.js, I bound cleanup callbacks inside useEffect returns to revoke object URLs and clear active timeouts on unmount or input change.
+
+8. Limitations and Honest Future Improvements
+
+While the application meets all core requirements, several limitations stem from its client-side architecture:
+
+1. Browser-Bound Storage: Because data relies on browser localStorage, posts and claims are scoped to the user's device rather than syncing in real time. A production system would replace itemsApi.js with HTTP calls to a Node.js REST API backed by a PostgreSQL database.
+
+2. Unauthenticated Claims: Ownership verification operates on an honor system where students submit descriptive messages. A production deployment should integrate university Single Sign-On (VIT Google Workspace OAuth) to restrict claiming to verified students with active registration numbers.
+
+3. Synthetic Geolocation: Campus nearest-sorting relies on a mock coordinate system rather than real GPS. Future iterations could integrate OpenStreetMap or Google Maps with walking routes between academic blocks.
+
+9. Conclusion
+
+Building Campus Lost & Found gave me practical experience in constructing a polished, accessible frontend from scratch using React, plain modular CSS, and automated testing. By keeping the codebase disciplined, avoiding heavy third-party dependencies, and testing pure business logic, I built a reliable application that I can confidently explain and defend in an interview.
+
+Repository and Live Application Links
+
+- GitHub repository: https://github.com/vaibhavmittal29/campus-lost-and-found
+- Live demo: https://vaibhavmittal29.github.io/campus-lost-and-found/
